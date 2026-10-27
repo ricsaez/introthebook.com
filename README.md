@@ -11,4 +11,4 @@ The Book: An Introduction is a tentative introduction to The Book: its Character
 
 None of the ideas presented are mine. They are the result of centuries of work by some of humanity’s greatest minds.
 
-I hope you enjoy discovering these ideas as much as I have. 
+I hope you enjoy discovering these ideas as much as I have.
