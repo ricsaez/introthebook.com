@@ -1,6 +1,6 @@
-When Paul Erdos came across an elegant solution to a problem he, said it came straight from The Book, a celestial book where God kept the perfect solution to every mathematical problem.
+When Paul Erdős came across an elegant solution to a problem, he said it came straight from The Book, a celestial book where God kept the perfect solution to every mathematical problem.
 
-While Erdos’s Book was about mathematics, it could also contain all derivable knowledge about our universe.
+While Erdős’s Book was about mathematics, it could also contain all derivable knowledge about our universe.
 
 Either way, The Book has a prerequisite: a language in which to express its contents.
 
