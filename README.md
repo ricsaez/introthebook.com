@@ -1,6 +1,7 @@
 When Paul Erdos came across an elegant solution to a problem, he said it came straight from The Book, a celestial book where God kept the perfect solution to every mathematical problem.
 
-While Erdos’s Book was about mathematics, we could imagine it also containing all derivable knowledge about our universe. 
+While Erdos’s Book was about mathematics, we could imagine it also containing all derivable knowledge about our universe.
+
 Either way, The Book has a prerequisite: a language in which to express its contents.
 
 Gottfried Leibniz’s dream was to build a universal language, a Characteristica Universalis, that could express any idea from a given set of primitive building blocks — the alphabet of human thought.
