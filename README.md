@@ -1,1 +1,1 @@
-The Book: An Introduction is [An Introduction](An%20Introduction.md) to [The Book](The%20Book.md)
+[An Introduction](An%20Introduction.md) to [The Book](The%20Book.md)
