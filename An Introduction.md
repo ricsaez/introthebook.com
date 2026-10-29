@@ -4,9 +4,9 @@ While Erdos’s Book was about mathematics, we could imagine it containing all d
 
 Either way, The Book has a prerequisite: a language in which to express its contents.
 
-Gottfried Leibniz’s dream was to build a universal language, a Characteristica Universalis, that could express any idea using its primitive building blocks — the alphabet of human thought.
+Gottfried Leibniz’s dream was to build a universal language, a Characteristica Universalis, that could express any idea using a set of primitive building blocks — the alphabet of human thought. That is: a set of ideas through which to express the rest of ideas through. 
 
-Humanity has made some notable progress on this matter.
+Humanity has made some notable progress on formulating a Characteristica Universalis.
 
 The Book: An Introduction is a tentative introduction to The Book: its Characteristica Universalis.
 
