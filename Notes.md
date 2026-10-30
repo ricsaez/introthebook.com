@@ -2,6 +2,12 @@
 
 Insights and open questions the book has not reached yet. When the book says something, or a question is settled, it leaves this file.
 
+## What we are doing
+
+The book introduces a primitive medium of expression: an irreducible set of ideas through which every idea that can be described as data and steps can be thought and said. To know something we must be able to say it, so the medium comes first. It must be minimal but complete: it can say anything that can be computed (power), and anything simple to think is simple to say (ease).
+
+It is built in layers, each the previous one plus exactly what that one cannot do: the base (functions alone: power), the core (structure: kinds and shapes, so what is said can be checked), the extensions (ease: nothing simple is awkward), and later claims and proofs (saying what is true of values). Each layer is closed as a shape in the Note Book and explained in the Book.
+
 ## Why this matters
 
 To know something, we have to be able to say it. So expression comes before knowledge, and a language comes before expression. This could open the introduction.
