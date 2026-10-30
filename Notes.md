@@ -12,6 +12,10 @@ It is built in layers, each the previous one plus exactly what that one cannot d
 
 To know something, we have to be able to say it. So expression comes before knowledge, and a language comes before expression. This could open the introduction.
 
+Why the book is needed: the medium is already at the heart of logic, proof checkers and functional programming, but it is taught as technical machinery, not as a medium of thought, and its basics are hard to present cleanly. Wittgenstein: "The limits of my language mean the limits of my world." A medium of saying moves that limit.
+
+Two questions stay separate: what an idea says, which the medium makes precise, and how it maps to the world, which is modelling, settled by evidence and by choices such as what counts as fair. The medium does not make those choices, but it makes them explicit: a disagreement about fairness becomes a disagreement about which definition to use.
+
 ## Carrying out, seen from outside
 
 - An expression that is not yet a value is like a question, and the value it comes to is like the answer: "the 1000th prime" and `7919`. They are about the same thing, but only the answer lets us see it. Computing is getting from one to the other by steps anyone can follow.
