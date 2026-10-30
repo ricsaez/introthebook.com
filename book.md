@@ -53,7 +53,7 @@ In the first step, the name becomes the function it stands for. In the second, t
 
 The parentheses around the function only keep it in one piece. Without them, the input `(rock)` would seem to belong to the last case.
 
-From here on, "comes to" means "becomes, in one step or more", and we often skip the step where a name becomes what it stands for:
+From here on, "comes to" means "becomes, in one step or more". We also skip the step where a name becomes what it stands for, and keep writing the name in its place:
 
     answer(rock)      comes to   paper
 
@@ -73,7 +73,7 @@ We have now written four kinds of expression:
     (false) ↦ true | (true) ↦ false      a function
     not(true)                            an application
 
-To describe them all at once, and not just these examples, we use letters that are never written in the language itself. `e` stands for any expression, `c` for any constructor, and `n` for any defined name:
+To describe them all at once, and not just these examples, we use letters that stand for parts of the language. `e` stands for any expression, `c` for any constructor, and `n` for any defined name:
 
     e ::= c                  a constructor
           n                  a defined name
@@ -90,6 +90,8 @@ The map shows something the examples don't. Look at the forms with an `e` inside
 
 A form with `e` inside it can hold any form, itself included, so forms go inside forms as deep as we like. Four forms combine without end.
 
+Parentheses can go around any expression to keep it in one piece. They only group: they are not a form of their own. A case's body reaches as far as it can, so a function that is written out and then applied goes in parentheses, as in section 2.
+
 Types have a map of their own. Using `T` for the name of a type, and `A` and `B` for any types:
 
     A ::= T                  a type declared with its constructors       Hand
@@ -97,7 +99,7 @@ Types have a map of their own. Using `T` for the name of a type, and `A` and `B`
 
 A function type has types inside it, so it too can hold any type, a function type included.
 
-And what we write is one of three things:
+What we write is declarations and definitions, then one expression to carry out. A declaration or definition is one of three things:
 
     T = c | …                declares the type T, with its constructors
     n : A                    declares n, of type A
@@ -124,10 +126,10 @@ An expression with nothing left to work out is a **value**. Using `v` for any va
 
 A function is a value even though its bodies are expressions: nothing happens inside a function until it is applied. Only then is a body carried out, and only the body of the case that is used.
 
-Here is all of carrying out so far. "`e` becomes `e'`" means one step, and `e'` is what `e` becomes; `f` stands for any function:
+Here is all of carrying out so far. "`e` becomes `e'`" means one step, and `e'` is what `e` becomes:
 
-    n          becomes   what n is defined as
-    f(v)       becomes   the body of f's first case for v, when f is a function
+    n                    becomes   what n is defined as
+    ((c) ↦ e | …)(v)     becomes   the body of the first case for v
 
 Where a step happens: in an application, first in the function being applied, until it is a value; then in its input, until that is a value; then the application takes its own step. So at each point there is one next step at most, and carrying out never has a choice to make.
 
@@ -164,17 +166,19 @@ A value **matches** a pattern when the pattern describes it. Cases are tried in 
 
     isRock(paper)     comes to   false
 
-The map changes in two places. A placeholder is a new form of expression, and a case's pattern can now be any pattern:
+On the map, a placeholder is a new form of expression, and a case's pattern can now be any pattern, in a function and so in a value:
 
     e ::= x                  a placeholder                                 new
           c
           n
           (p) ↦ e | …        a function                                    (c) widened to (p)
           e(e)
+    v ::= (p) ↦ e | …        a function                                    widened
 
 And applying puts the input in place:
 
-    f(v)       becomes   the body of f's first case that v matches, with v in place of the placeholder, if the pattern is one
+    ((p) ↦ e | …)(v)     becomes   the body of the first case that v matches,
+                                   with v in place of its placeholder, if the pattern is one
 
 ## 6. Several inputs
 
@@ -209,15 +213,17 @@ A function can also take no inputs at all, and is then applied to none. Its body
 
     later()           comes to   paper
 
-On the map, functions, applications and function types now take any number of inputs. In `p, …`, the `…` means "any number of them, even none", and likewise in `e, …` and `A, …`:
+On the map, functions, applications and function types now take any number of inputs. In `p, …`, the `…` means "any number of them, even none", and likewise in `e, …`, `v, …` and `A, …`:
 
     e ::= (p, …) ↦ e | …     a function                                    widened
           e(e, …)            an application                                widened
+    v ::= (p, …) ↦ e | …     a function                                    widened
     A ::= (A, …) → B         a function type                               widened
 
 A function is given exactly as many inputs as its cases have patterns, and applying puts each in place:
 
-    f(v, …)    becomes   the body of f's first case whose patterns v, … match, with each value in place of its placeholder
+    ((p, …) ↦ e | …)(v, …)     becomes   the body of the first case whose patterns v, … match,
+                                         with each value in place of its placeholder
 
 ## 7. Checking
 
@@ -253,7 +259,7 @@ None of the stuck expressions has a type:
 
 Neither does a function that has no case for some value: `(rock) ↦ paper` does not have type `(Hand) → Hand`, since `paper` and `scissors` match no case.
 
-An expression that has a type is **checked**. What we write is checked when, for each definition `n = e`, `e` has the type declared for `n`, and the expression we carry out has a type. Since every name's type is declared, a definition can use any name, even one defined after it.
+An expression that has a type is **checked**. What we write is checked when every declared name is defined once, every defined name is declared once, each definition `n = e` has `e` of the type declared for `n`, and the expression we carry out has a type. Since every name's type is declared, a definition can use any name, even one defined after it.
 
 A checked expression never gets stuck. Each step keeps its type. And while it is not a value, there is always a next step: when an application's parts are all values, the one applied has a function type, so it is a function; it is given as many inputs as it takes, of the types it takes, so some case matches them.
 
@@ -271,6 +277,8 @@ But it takes no step: it holds them. `round(rock, paper)` is a value: a round in
 
     round(rock, answer(rock))      comes to   round(rock, paper)
 
+Written on its own, without its contents, `round` is a value too, and works like a function: given two hands, it makes a round. So wherever a function can go, it can go.
+
 To use data, we take it apart with a pattern: a constructor, with patterns for its contents.
 
     won : (Round) → Bool
@@ -281,7 +289,7 @@ To use data, we take it apart with a pattern: a constructor, with patterns for i
 The pattern `round(a, b)` matches any round, and gives `a` the first hand and `b` the second. The contents of a pattern are patterns, so a pattern can look more than one layer in:
 
     draw : (Round) → Bool
-    draw = (round(rock, rock)) ↦ true | (round(paper, paper)) ↦ true | (round(scissors, scissors)) ↦ true | (r) ↦ false
+    draw = (round(rock, rock)) ↦ true | (round(paper, paper)) ↦ true | (round(scissors, scissors)) ↦ true | (other) ↦ false
 
     draw(round(paper, rock))       comes to   false
 
@@ -298,9 +306,12 @@ There is no new form of expression: `round(rock, paper)` is already an applicati
     v ::= c(v, …)            data: a constructor holding values             new
     p ::= c(p, …)            data built by c, with contents matching p, …   new
 
-`v` is inside its own new form, so data can hold data. `p` is inside its own new form, so patterns nest.
+`v` is inside its own new form, so data can hold data. `p` is inside its own new form, so patterns nest. And since a pattern can now hold placeholders deep inside it, applying puts in place of each placeholder what it matched:
 
-And two rules for checking:
+    ((p, …) ↦ e | …)(v, …)     becomes   the body of the first case whose patterns v, … match,
+                                         with what each placeholder matched in its place
+
+Two rules for checking:
 
     c : (A, …) → T           when T lists c(A, …)                           round : (Hand, Hand) → Round
     c(p, …) fits T           when T lists c(A, …), and p, … fit A, …
@@ -309,7 +320,7 @@ A checked expression still never gets stuck: a constructor that holds contents, 
 
 ## 9. Repeating
 
-Every type so far has only so many values: a `Round` is one of nine. Some kinds of thing have no end. A constructor's contents can be of the very type being declared:
+Every type declared so far has only so many values: a `Round` is one of nine. Some kinds of thing have no end. A constructor's contents can be of the very type being declared:
 
     Nat = zero | succ(Nat)
 
@@ -317,19 +328,21 @@ A `Nat` is `zero`, or `succ` holding a `Nat`; `succ` reads "one more than". So `
 
     Rounds = empty | cons(Round, Rounds)
 
-Rounds are none, or a round followed by more rounds:
+Rounds are none, or a round followed by more rounds; `cons` reads "followed by":
 
     cons(round(paper, rock), cons(round(rock, paper), empty))
 
-A pattern sees only as many layers as it is written with. To work through rounds of any length, a function must go once around for each layer, so it uses itself. A definition can use its own name:
+A pattern sees only as many layers as it is written with. To work through rounds of any length, a function must go once around for each layer. First, a small function that adds one to a total when a round was won:
 
     more : (Bool, Nat) → Nat
-    more = (true, n) ↦ succ(n) | (false, n) ↦ n
+    more = (true, total) ↦ succ(total) | (false, total) ↦ total
+
+To go around once for each layer, a function uses itself: a definition can use its own name. `wins` counts the rounds the first player won:
 
     wins : (Rounds) → Nat
-    wins = (empty) ↦ zero | (cons(r, rest)) ↦ more(won(r), wins(rest))
+    wins = (empty) ↦ zero | (cons(this, rest)) ↦ more(won(this), wins(rest))
 
-`wins` counts the rounds the first player won. In no rounds, none. In a round followed by the rest: as many as in the rest, and one more if this round was won.
+In no rounds, none. In this round followed by the rest: as many as in the rest, and one more if this round was won.
 
     wins(cons(round(paper, rock), cons(round(rock, paper), empty)))
         comes to   more(won(round(paper, rock)), wins(cons(round(rock, paper), empty)))
@@ -342,10 +355,10 @@ A pattern sees only as many layers as it is written with. To work through rounds
 
 Each time around takes one layer off the rounds, until they are `empty` and the first case ends it. One round was won.
 
-Adding works the same way. Zero and `n` make `n`; one more than `m`, and `n`, make one more than `m` and `n`:
+Adding works the same way. Zero and `b` make `b`; one more than `a`, and `b`, make one more than `a` and `b`:
 
     add : (Nat, Nat) → Nat
-    add = (zero, n) ↦ n | (succ(m), n) ↦ succ(add(m, n))
+    add = (zero, b) ↦ b | (succ(a), b) ↦ succ(add(a, b))
 
     add(succ(zero), succ(zero))      comes to   succ(succ(zero))
 
@@ -381,7 +394,7 @@ A function that gives back a function:
     against(rock)             comes to   (b) ↦ beats(b, rock)
     against(rock)(paper)      comes to   true
 
-`against(rock)` is a test: does this hand beat rock? A body reaches as far as it can, so the body of the outer function is the whole inner function. In the same way, `(Hand) → (Hand) → Bool` takes a `Hand` and gives back a `(Hand) → Bool`. And `rock` went in place of `a` inside the inner function: an input goes wherever its placeholder is used, even where nothing is carried out yet.
+`against(rock)` is a test: does this hand beat rock? Since a body reaches as far as it can, the body of the outer function is the whole inner function. In the same way, `(Hand) → (Hand) → Bool` takes a `Hand` and gives back a `(Hand) → Bool`. And `rock` went in place of `a` inside the inner function: an input goes wherever its placeholder is used, even where nothing is carried out yet.
 
 Data holding a function. A player plays by a rule: given the hand the other player showed last, it gives the hand to show next.
 
@@ -396,7 +409,7 @@ This player always shows what would have beaten the last hand.
 
 A pattern can take data apart, but nothing takes a function apart: only a placeholder fits a function type. A function given a function can apply it, and nothing else.
 
-Again the map needed nothing new. Every combination here was already on it. The types in `(A, …) → B` and in `c(A, …)` can be function types, a body can be a function, and the applied part of `e(e, …)` can itself be an application, as in `against(rock)(paper)`. Every value is data or a function, so every place a value can go holds one or the other:
+Again the map needed nothing new. Every combination here was already on it. The types in `(A, …) → B` and in `c(A, …)` can be function types, a body can be a function, and the applied part of `e(e, …)` can itself be an application, as in `against(rock)(paper)`. Every value is data or a function, counting a constructor written without its contents as a function. So every place a value can go holds one or the other:
 
     (Hand) → Bool                      takes data, gives data               isRock
     (Hand) → (Hand) → Bool             takes data, gives a function         against
@@ -409,27 +422,27 @@ Again the map needed nothing new. Every combination here was already on it. The 
 
 `Rounds` holds rounds. A list of hands would need another type just like it, with constructors of its own, and counting its items would need another function just like the one for rounds. The idea is the same each time; only the type of the items changes.
 
-So a type can leave something open too. In a type, a **placeholder** is a name that is not a declared type, such as `X`, and it stands for any type. A type can take placeholders, and is then filled with types wherever it is used:
+So a type can leave something open too. In a type, a **placeholder** is a name that is not a declared type, and it stands for any type. A type can take placeholders, and is then filled with types wherever it is used:
 
     List(X) = empty | cons(X, List(X))
     Pair(X, Y) = pair(X, Y)
 
-`List(Hand)` is a list of hands, and `List(Round)` a list of rounds, which is what `Rounds` was. `Pair(Bool, Nat)` holds a `Bool` and a `Nat`.
+`List(Hand)` is a list of hands, and `List(Round)` a list of rounds. `List` replaces `Rounds`: from here on, `empty` and `cons` are `List`'s constructors, and `wins` takes a `List(Round)`. `Pair(Bool, Nat)` holds a `Bool` and a `Nat`.
 
 A defined name's type can have placeholders too, and then its definition works for any type in their place:
 
     length : (List(X)) → Nat
     length = (empty) ↦ zero | (cons(a, rest)) ↦ succ(length(rest))
 
-    map : ((X) → Y, List(X)) → List(Y)
-    map = (f, empty) ↦ empty | (f, cons(a, rest)) ↦ cons(f(a), map(f, rest))
+    each : ((X) → Y, List(X)) → List(Y)
+    each = (f, empty) ↦ empty | (f, cons(a, rest)) ↦ cons(f(a), each(f, rest))
 
     length(cons(rock, cons(paper, empty)))            comes to   succ(succ(zero))
-    map(answer, cons(rock, cons(paper, empty)))       comes to   cons(paper, cons(scissors, empty))
+    each(answer, cons(rock, cons(paper, empty)))      comes to   cons(paper, cons(scissors, empty))
 
-`map` gives back the list of what `f` gives for each item. Each use of a name chooses a type for each placeholder in its type, the same throughout that use: here `Hand` for both `X` and `Y`. The definition itself is checked without knowing which type `X` is, so it cannot look at what it is given there: only a placeholder pattern fits `X`.
+`each` gives back the list of what `f` gives for each item. Each use of a name or constructor chooses a type for each placeholder in its type, the same throughout that use: here `Hand` for both `X` and `Y`. The definition itself is checked without knowing which type `X` is, so it cannot look at what it is given there: only a placeholder pattern fits `X`.
 
-On the map:
+On the map, `X` stands for any placeholder in a type; in what we write, they are names like `X` and `Y`:
 
     T(X, …) = d | …          a type that takes types                        widened
     A ::= T(A, …)            a type, filled; T alone if it takes none       widened from T
@@ -452,10 +465,10 @@ Everything in the core says something, and nothing changes: an expression and wh
 
 ## 12. State, written out
 
-As they play, the players keep score: after each round the first player wins, their score goes up by one. A score changes, and in the core nothing changes. But a change can be said with values: the score before, and the score after.
+As they play, the players keep score: after each round that the first player wins, their score goes up by one. A score changes, and in the core nothing changes. But a change can be said with values: the score before, and the score after.
 
     score : (Round, Nat) → Nat
-    score = (r, n) ↦ more(won(r), n)
+    score = (this, total) ↦ more(won(this), total)
 
 Given a round and the score before it, `score` gives back the score after it. Two rounds, the first won and the second lost, starting from zero:
 
@@ -468,21 +481,21 @@ The score is a **memory**: something kept, and changed as we go. Here it is writ
 This works, but it has a cost. This function asks whether the first player won both of two rounds:
 
     both : (Round, Round) → Bool
-    both = (r, s) ↦ and(won(r), won(s))
+    both = (first, second) ↦ and(won(first), won(second))
 
 To keep the score as well, playing a round must give back two things, whether it was won and the new score:
 
     play : (Round, Nat) → Pair(Bool, Nat)
-    play = (r, n) ↦ pair(won(r), more(won(r), n))
+    play = (this, total) ↦ pair(won(this), more(won(this), total))
 
 And `both` must be rewritten to take the score, hand it through each round in turn, and give it back with its answer:
 
     both : (Round, Round, Nat) → Pair(Bool, Nat)
-    both = (r, s, n) ↦ ((pair(a, m)) ↦ ((pair(b, t)) ↦ pair(and(a, b), t))(play(s, m)))(play(r, n))
+    both = (first, second, total) ↦ ((pair(a, m)) ↦ ((pair(b, t)) ↦ pair(and(a, b), t))(play(second, m)))(play(first, total))
 
-This reads: play `r` with the score `n`, and call what it gives back `a` and `m`; play `s` with `m`, and call what that gives back `b` and `t`; give back `and(a, b)`, with the score `t`.
+This reads: play the first round with the score `total`, and call what it gives back `a` and `m`; play the second with `m`, and call what that gives back `b` and `t`; give back `and(a, b)`, with the score `t`.
 
-`both` doesn't care about the score at all: it only hands it along. And every function that uses `both` must now do the same, and every function that uses those. The memory goes in and out of every function between the place it starts and the places that use it, and each of their types changes. One small idea, a score, touches everything on the way.
+`both` doesn't care about the score at all: it only hands it along. And every function that uses `both` must now do the same, and every function that uses those. The memory goes in and out of every function between the place it starts and the places that use it, and each of their definitions and types changes. One small idea, a score, touches everything on the way.
 
 What we want is to mention the score only where it is used.
 
@@ -504,15 +517,15 @@ Carrying out `beatsOpponent(rock)` goes as far as this:
     beatsOpponent(rock)
         comes to   beats(rock, opponent())
 
-The next thing to work out is the input `opponent()`, and no rule carries it out. A request is not a value, and takes no step of its own: it waits to be answered.
+The next thing to work out is the input `opponent()`, and no rule carries it out. A request is not a value, and takes no step of its own: it waits to be answered. It is not stuck, though: it is waiting for an answer from outside the expression.
 
 A **handler** answers it. It goes around the expression that asks:
 
     handle beatsOpponent(rock) with
-          (x) ↦ x
+          (outcome) ↦ outcome
         | (opponent(), k) ↦ k(scissors)
 
-A handler has cases, like a function. The first is for the value the expression comes to in the end: here it gives that value back as it is. The second is for the request `opponent()`, and its body answers `scissors`. To see how, we need to know what `k` is.
+A handler has cases, like a function. The first is for the value the expression comes to in the end: here it gives that value back as it is. The second is for the request `opponent()`, and its body answers `scissors`. In a handler's case, a request's name stands for that request, as a constructor's name does in a pattern. To see how the answer is given, we need to know what `k` is.
 
 When the request is made, the expression around it is waiting for an answer: `beats(rock, opponent())` is waiting for a hand, to put where `opponent()` is. That waiting expression is **the rest** of the computation, and it can be written as a function. Given an answer, it puts it where the request was, and goes on, with the handler still around it:
 
@@ -541,13 +554,19 @@ On the map, using `F` for the name of an effect, `r` for a request, and `h` for 
     h ::= (p) ↦ e                    for the value e comes to
           (r(p, …), x) ↦ e           for a request: patterns for its inputs, and a placeholder for the rest
 
+And a function type can say what its function may request, using `E` for a list of effects:
+
+    A ::= (A, …) → B ! E             a function type, and what it may request; ! E left out when it lists none    widened
+    E ::= {F, …}                     the effects it may request                         new
+
 The steps:
 
-    handle v with h | …     becomes   the body of the first case for values that v matches, with v in place
-    handle e with h | …     becomes   the body of the first case for the request r(v, …),
-                                      with the request's inputs in place, and the rest in place of x,
-                                      when the next thing to work out in e is r(v, …),
-                                      and no handler inside e has a case for r
+    handle v with h | …     becomes   the body of the first case for values that v matches,
+                                      with what its placeholder matched in its place
+    handle e with h | …     becomes   the body of the first case for r whose patterns v, … match,
+                                      with what they matched in place, and the rest in place of x,
+                                      when the next thing to work out in e is a request r(v, …),
+                                      and no handler in e around that request has a case for r
 
 Otherwise, the expression inside a handler takes its steps as usual. A request that a handler has no case for passes it by, to a handler further out.
 
@@ -564,7 +583,7 @@ The handler above went on once, with one answer. But it holds the rest as a valu
 It can never go on:
 
     handle beatsOpponent(rock) with
-          (x) ↦ x
+          (outcome) ↦ outcome
         | (opponent(), k) ↦ false
 
         comes to   false
@@ -577,7 +596,7 @@ It can go on several times. This handler asks, for each hand the opponent could 
     count = (true) ↦ succ(zero) | (false) ↦ zero
 
     handle beatsOpponent(rock) with
-          (x) ↦ count(x)
+          (outcome) ↦ count(outcome)
         | (opponent(), k) ↦ add(k(rock), add(k(paper), k(scissors)))
 
         comes to   succ(zero)
@@ -590,7 +609,7 @@ Each `k(…)` goes on from the request with a different hand, and comes to a val
 
 and `add(zero, add(zero, succ(zero)))` comes to `succ(zero)`. Against the three hands, rock wins once. This is search: one question, every answer tried.
 
-It can also keep `k` in data, and go on later. That is how a generator gives back items one at a time, and how two computations take turns.
+It can also keep `k` in data, and go on later (not shown here). That is how a generator works, giving back items one at a time, each when it is asked for, and how two computations can take turns.
 
 So a handler receives a request and the rest, and chooses how to go on: once, never, several times, or later. The same two forms, request and handler, say all four.
 
@@ -618,27 +637,27 @@ Recording a round:
 Given that a round was won, `record` adds one to the score and gives back `true`; given that it was lost, it changes nothing. And `both`, rewritten once more:
 
     both : (Round, Round) → Bool ! {Score}
-    both = (r, s) ↦ and(record(won(r)), record(won(s)))
+    both = (first, second) ↦ and(record(won(first)), record(won(second)))
 
-Compare it with the first `both`, `(r, s) ↦ and(won(r), won(s))`. Only `record`, the one place that changes the score, mentions it. No score is handed in or out, and a function that uses `both` doesn't change.
+Compare it with the first `both`, `(first, second) ↦ and(won(first), won(second))`. Only `record`, the one place that changes the score, mentions it. No score is handed in or out. A function that uses `both` doesn't change either, except that its type says it may ask `Score`.
 
 A handler holds the memory:
 
     keep : (() → X ! {Score}, Nat) → Pair(X, Nat)
-    keep = (c, n) ↦ (handle c() with
-                          (x) ↦ ((m) ↦ pair(x, m))
-                        | (get(), k) ↦ ((m) ↦ k(m)(m))
-                        | (put(s), k) ↦ ((m) ↦ k(unit)(s)))(n)
+    keep = (task, start) ↦ (handle task() with
+                                (outcome) ↦ ((m) ↦ pair(outcome, m))
+                              | (get(), k) ↦ ((m) ↦ k(m)(m))
+                              | (put(new), k) ↦ ((m) ↦ k(unit)(new)))(start)
 
-`keep` takes a computation kept for later, `c`, and a starting score, `n`. Its handler doesn't give back an answer directly: it gives back a function waiting for the score so far, `m`. The `(n)` at the end gives it the starting score; the parentheses before it keep the handler in one piece, so it can be applied. Its cases read:
+`keep` takes a computation kept for later, `task`, and a starting score, `start`. Its handler doesn't give back an answer directly: it gives back a function waiting for the score so far, `m`. The `(start)` at the end gives it the starting score; the parentheses before it keep the handler in one piece, so it can be applied. Its cases read:
 
-- when the computation comes to a value `x`: given the score `m`, give back `x` together with `m`;
+- when the computation comes to a value: given the score `m`, give back that value together with `m`;
 - when asked for the score: given `m`, answer `m`, and go on with the score still `m`;
-- when told to set the score to `s`: given `m`, answer `unit`, and go on with the score `s` instead.
+- when told to set the score to `new`: given `m`, answer `unit`, and go on with the score `new` instead.
 
 The rest, `k`, has the handler around it, so it too gives back a function waiting for a score. That is why what `k(m)` gives back is given a score in turn: `k(m)(m)`.
 
-Two rounds, the first won and the second lost, starting from zero:
+Two rounds, the first won and the second lost, starting from zero. Below, `k` is the rest after the first request, `get()`, and `k'` the rest after the second, `put(succ(zero))`:
 
     keep(() ↦ both(round(paper, rock), round(rock, paper)), zero)
         comes to   ((m) ↦ k(m)(m))(zero)                    the first request is get()
@@ -648,7 +667,7 @@ Two rounds, the first won and the second lost, starting from zero:
         comes to   ((m) ↦ pair(false, m))(succ(zero))        the rest comes to false
         becomes    pair(false, succ(zero))
 
-Here `k` is the rest after `get()`, and `k'` the rest after `put(succ(zero))`. Not both rounds were won, and the score is one.
+Not both rounds were won, and the score is one.
 
 The memory is handed along exactly as in section 12, in and out of every step. But now that is written once, in the handler, instead of in every function on the way.
 
@@ -664,7 +683,7 @@ A request that no handler in the program answers goes outside it. Showing someth
 `game` shows `rock`, reads the other player's hand, and says whether rock won. Carried out, it stops at `show(rock)` and waits; whatever runs it shows rock on the screen and answers `unit`. At `read()` it waits again, for a hand. Inside the language, a handler can stand in for the outside, which is how such a program is tested:
 
     handle game() with
-          (x) ↦ x
+          (outcome) ↦ outcome
         | (show(a), k) ↦ k(unit)
         | (read(), k) ↦ k(scissors)
 
@@ -672,31 +691,29 @@ A request that no handler in the program answers goes outside it. Showing someth
 
 ## 17. Checking effects
 
-A function type now also says which effects its function may request:
+Since section 13, a function type can say which effects its function may request. Checking makes sure it says enough:
 
-    A ::= (A, …) → B ! E      a function type, and what it may request      widened
-
-`E` lists effects, as in `{Opponent}` or `{Score, Console}`. When it lists none, `! E` is left out, so `(Hand) → Hand` requests nothing.
-
-The rules add up what may be requested:
-
-    r(e, …) : B ! {F}         when F lists r : (A, …) → B, and e, … : A, …
+    r(e, …) : B, and it may request F,     when F lists r : (A, …) → B, and e, … : A, …
 
 - An expression may request whatever its parts may, and an application may also request what its function's type lists.
-- A function's type lists what its bodies may request.
-- A handler answers the requests of one effect, so the expression around which it is written may request that effect, and the handler as a whole may not. In its case for values, the pattern fits the type of what the expression comes to. In each case for a request, the patterns fit the request's input types, and the rest, `k`, takes the request's answer type and gives back what the handler gives back. And there is a case for every request of the effect.
+- A function is the exception. Nothing in it happens until it is applied, so what its bodies may request goes into its type instead, and is requested where it is applied.
+- A handler answers the requests of one effect. The whole handler may request what the expression inside it may, without that effect, and whatever its cases' bodies may. In its cases for values, the patterns fit the type of what the expression comes to, and any such value matches some case. In each case for a request, the patterns fit the request's input types, and the rest, `k`, takes the request's answer type and gives back what the handler gives back. Every request of the effect, with any inputs, matches some case for it.
 
-A type can leave effects open, as `X` leaves a type open. `map` applies `f`, so whatever `f` may request, `map` may too:
+A type can leave effects open, as `X` leaves a type open. `each` applies `f`, so whatever `f` may request, `each` may too:
 
-    map : ((X) → Y ! Z, List(X)) → List(Y) ! Z
+    each : ((X) → Y ! Z, List(X)) → List(Y) ! Z
 
-`Z` is a placeholder for effects, and each use of `map` chooses them.
+On the map:
 
-With these rules, a checked expression comes to a value of its type, goes on forever, or makes a request its type lists. So a checked program whose type lists no effects never gets stuck, and never makes a request that nothing answers. One whose type lists only `Console`, as `game`'s does, asks only the world outside.
+    E ::= Z                  a placeholder for effects                      new
+
+`Z` stands for any effects, and each use of `each` chooses them.
+
+With these rules, a checked expression comes to a value of its type, goes on forever, or waits on a request its type lists. So a checked program whose type lists no effects never gets stuck, and never makes a request that nothing answers. One whose type lists only `Console`, as `game`'s does, asks only the world outside.
 
 ## 18. The whole language
 
-These letters describe the language, and are never written in it: `e` an expression, `v` a value, `x` a placeholder, `c` a constructor, `n` a defined name, `p` a pattern, `d` a constructor as declared, `T` a type's name, `F` an effect, `r` a request, `h` a handler's case, `A` and `B` types, `X` a placeholder in a type, `E` what may be requested, `Z` a placeholder for effects. `e, …` means any number of expressions, even none, and likewise for the other letters. `| …` after a case means more cases like it, as many as needed.
+These letters describe the language: `e` an expression, `v` a value, `x` a placeholder, `c` a constructor, `n` a defined name, `p` a pattern, `d` a constructor as declared, `T` a type's name, `F` an effect, `r` a request, `h` a handler's case, `A` and `B` types, `X` a placeholder in a type, `E` what may be requested, `Z` a placeholder for effects. `e, …` means any number of expressions, even none, and likewise for the other letters. `| …` after a case means more cases like it, as many as needed. Parentheses only group, and a body reaches as far as it can.
 
 **What we write**: declarations and definitions, then one expression to carry out.
 
@@ -744,33 +761,38 @@ These letters describe the language, and are never written in it: `e` an express
     ((p, …) ↦ e | …)(v, …)     becomes   the body of the first case whose patterns v, … match,
                                          with what each placeholder matched in its place
     handle v with h | …        becomes   the body of the first case for values that v matches,
-                                         with v in place
-    handle e with h | …        becomes   the body of the first case for the request r(v, …),
-                                         with the request's inputs in place, and the rest in place of x,
-                                         when the next thing to work out in e is r(v, …),
-                                         and no handler inside e has a case for r
+                                         with what its placeholder matched in its place
+    handle e with h | …        becomes   the body of the first case for r whose patterns v, … match,
+                                         with what they matched in place, and the rest in place of x,
+                                         when the next thing to work out in e is a request r(v, …),
+                                         and no handler in e around that request has a case for r
 
 The rest is `e` with a new placeholder `y` where the request was, inside the same handler, as a function of `y`: `(y) ↦ handle … with h | …`. Steps happen in an application, first in what is applied, then in its inputs from left to right; in a request, in its inputs from left to right; in a handler, in the expression inside it. Nothing happens inside a function until it is applied.
 
+Carrying out ends in a value, goes on forever, gets stuck, or waits on a request that nothing in the program answers. Checking rules out getting stuck, and says which requests may be left waiting.
+
 **Checking**: one rule for each form.
 
-    c : T(X, …)                         when T(X, …) lists c
-    c : (A, …) → T(X, …)                when T(X, …) lists c(A, …)
-    n : A                               when n is declared n : A, with any types in place of its placeholders
-    x : A                               when its pattern gives it A
-    e(e', …) : B                        when e : (A, …) → B ! E, and e', … : A, …
-    r(e, …) : B                         when F lists r : (A, …) → B, and e, … : A, …
-    ((p, …) ↦ e | …) : (A, …) → B ! E   when in every case the patterns fit A, …, and the body : B;
-                                        and any values of types A, … match some case
-    handle e with h | …                 answers every request of one effect that e may make
+    c : T(X, …)                        when T(X, …) lists c
+    c : (A, …) → T(X, …)               when T(X, …) lists c(A, …)
+    n : A                              when n is declared n : A
+    x : A                              when its pattern gives it A
+    e(e', …) : B                       when e : (A, …) → B ! E, and e', … : A, …
+    r(e, …) : B                        when F lists r : (A, …) → B, and e, … : A, …
+    ((p, …) ↦ e | …) : (A, …) → B ! E  when in every case the patterns fit A, …, and the body : B;
+                                       and any values of types A, … match some case
+    (handle e with h | …) : B          when e : A; in the cases for values, the patterns fit A, and any value
+                                       of type A matches one; in each case for a request r : (A', …) → B',
+                                       the patterns fit A', …, and its rest takes a B' and gives back a B;
+                                       every request of the effect matches some case for it; and every body : B
 
     x fits A           giving x : A
     c fits T(…)        when c : T(…)
     c(p, …) fits B     when c : (A, …) → B, and p, … fit A, …
 
-What may be requested adds up from the parts, and a handler takes away the effect it answers.
+In the rules for constructors and defined names, any types can be put in place of the placeholders in their types, the same throughout one use. What may be requested adds up from the parts, except inside a function, where it goes into the function's type; and a handler takes away the effect it answers.
 
-**The guarantee**: a checked expression comes to a value of its type, goes on forever, or makes a request its type lists. It never gets stuck.
+**The guarantee**: a checked expression comes to a value of its type, goes on forever, or waits on a request its type lists. It never gets stuck.
 
 **The shape**: every value is data or a function, and every effect is requests and a handler. Each is made one way and used one way:
 
@@ -780,20 +802,21 @@ What may be requested adds up from the parts, and a handler takes away the effec
 | function | cases, each a pattern and a body  | applying it to inputs            |
 | effect   | a request                         | a handler, which answers it      |
 
-**Reading another language through the map.** Every language is this one with some of its forms chosen, some hidden, and its own way of writing them. Python, for example:
+**Reading another language through the map.** Many languages can be read as this one, with some of its forms chosen, some hidden, and their own way of writing them. Python, for example:
 
-| Python                 | on the map                                     |
-|------------------------|------------------------------------------------|
-| `True`, `False`, `Enum`| constructors                                   |
-| `def`, `lambda`        | functions                                      |
-| `if`, `match`          | cases                                          |
-| tuples, `dataclass`    | constructors holding contents                  |
-| lists                  | `List(X)`                                      |
-| `for`, `while`         | a definition that uses itself, with a memory   |
-| `x = x + 1`            | a memory: `put(succ(get()))`, its handler hidden |
-| `raise`, `try`         | a request whose handler never goes on          |
-| `yield`                | a request whose handler goes on later          |
-| `print`, `input`       | requests the outside answers                   |
-| type hints             | checking                                       |
+| Python                          | on the map                                       |
+|---------------------------------|--------------------------------------------------|
+| an `Enum` class                 | a type, listing its constructors                 |
+| `True`, `False`, an `Enum`'s members | constructors                                |
+| `def`, `lambda`                 | functions                                        |
+| `if`, `match`                   | cases                                            |
+| tuples, `dataclass`             | constructors holding contents                    |
+| lists                           | `List(X)`                                        |
+| `for`, `while`                  | a definition that uses itself, with a memory     |
+| `x = x + 1`                     | a memory: `put(succ(get()))`, its handler hidden |
+| `raise`, `try`                  | a request whose handler never goes on            |
+| `yield`                         | a request whose handler goes on later            |
+| `print`, `input`                | requests the outside answers                     |
+| type hints                      | declarations, checked by separate tools, not when running |
 
 Five forms of expression for saying, two more for doing, and a few rules for each. Everything else is a combination of them.
