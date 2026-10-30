@@ -56,6 +56,11 @@ To know something, we have to be able to say it. So expression comes before know
 
 ## The arc
 
+Three layers, two barriers:
+- The base: functions alone. It can compute anything.
+- The core: the base with structure. Types say what kinds of things there are, and data says what shape each kind has; self-reference and "for every" come with them. All of it can be translated down to the base to run, but the translation erases exactly the structure. So the first barrier is structure, and checking is what structure makes possible.
+- The extensions: everything else. Each translates back into the core, one definition at a time, keeping the types. So the second barrier is translation, and crossing it adds only ease.
+
 Each kind of value comes with a way to make it and a way to use it. For functions, `↦` makes one and applying uses it. For data, building from parts makes it and taking apart uses it.
 
 The driving question: what can the language do with things? So far there is one movement, carrying out an application. Later: building things from parts, taking them apart, and referring back to something already defined. The old book had four: make, choose, combine (applying), repeat.
